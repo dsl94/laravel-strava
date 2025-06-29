@@ -38,6 +38,14 @@ class Strava
     #
     public function authenticate($scope = 'read_all,profile:read_all,activity:read_all', $redirect_uri = null)
     {
+        $userAgent = $_SERVER['HTTP_USER_AGENT'];
+    
+        $isMobile = preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent);
+    
+        $baseUrl = $isMobile 
+            ? 'https://www.strava.com/oauth/mobile/authorize' 
+            : 'https://www.strava.com/oauth/authorize';
+    
         $query = http_build_query([
             'client_id' => $this->client_id,
             'response_type' => 'code',
@@ -45,8 +53,8 @@ class Strava
             'scope' => $scope,
             'state' => 'strava',
         ]);
-
-        return redirect("https://www.strava.com/oauth/authorize?{$query}");
+    
+        return redirect("{$baseUrl}?{$query}");
     }
 
 
