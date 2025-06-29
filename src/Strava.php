@@ -40,11 +40,16 @@ class Strava
     {
         $userAgent = $_SERVER['HTTP_USER_AGENT'];
     
+        // Detect iOS devices specifically
+        $isIOS = preg_match('/iPhone|iPad|iPod/i', $userAgent);
         $isMobile = preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent);
     
-        $baseUrl = $isMobile 
-            ? 'https://www.strava.com/oauth/mobile/authorize' 
-            : 'https://www.strava.com/oauth/authorize';
+        // Use strava:// scheme for iOS, fallback to mobile/authorize for other mobile devices
+        $baseUrl = $isIOS 
+            ? 'strava://oauth/mobile/authorize' 
+            : ($isMobile 
+                ? 'https://www.strava.com/oauth/mobile/authorize' 
+                : 'https://www.strava.com/oauth/authorize');
     
         $query = http_build_query([
             'client_id' => $this->client_id,
